@@ -3,7 +3,7 @@ import { NeedRequest } from "../types/request";
 const now = new Date();
 const h = (hours: number) => new Date(now.getTime() - hours * 60 * 60 * 1000).toISOString();
 
-export const seedRequestsV3: NeedRequest[] = [
+const rawRequests: NeedRequest[] = [
   {
     id: "REQ-001",
     title: "Emergency Medical Supplies for Elderly Home",
@@ -337,3 +337,12 @@ export const seedRequestsV3: NeedRequest[] = [
     createdAt: h(9), updatedAt: h(4)
   }
 ];
+
+// Inject mock coordinates for Geo-Context (New Delhi base area)
+export const seedRequestsV3: NeedRequest[] = rawRequests.map(req => ({
+  ...req,
+  coordinates: {
+    lat: 28.6139 + (Math.random() - 0.5) * 0.2, // ~10-20km radius
+    lng: 77.2090 + (Math.random() - 0.5) * 0.2
+  }
+}));

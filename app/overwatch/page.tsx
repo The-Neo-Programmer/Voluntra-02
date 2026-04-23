@@ -189,11 +189,9 @@ export default function OverwatchPage() {
               </div>
             </div>
             
-            <div className="w-full h-full relative overflow-hidden">
-              <video 
-                src="https://joy.videvo.net/videvo_files/video/free/2019-11/large_watermarked/190301_1_25_11_preview.mp4" 
-                autoPlay loop muted playsInline 
-                className="w-full h-full object-cover" 
+            <div className="w-full h-full relative overflow-hidden bg-[#111]">
+              <div 
+                className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1628102491629-778571d893a3?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-70 animate-[pulse_4s_ease-in-out_infinite] scale-105"
               />
               <div className="absolute inset-0 bg-black/40 mix-blend-multiply pointer-events-none" />
               <div className="absolute bottom-3 left-3 z-10">
@@ -216,11 +214,9 @@ export default function OverwatchPage() {
               </div>
             </div>
             
-            <div className="w-full h-full relative overflow-hidden">
-               <video 
-                 src="https://joy.videvo.net/videvo_files/video/free/2014-12/large_watermarked/Raindrops_Macro2_preview.mp4" 
-                 autoPlay loop muted playsInline 
-                 className="w-full h-full object-cover" 
+            <div className="w-full h-full relative overflow-hidden bg-[#111]">
+               <div 
+                 className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596720426673-e4e14290f0cc?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-70 animate-[pulse_5s_ease-in-out_infinite] scale-105"
                />
                <div className="absolute inset-0 bg-black/40 mix-blend-multiply pointer-events-none" />
                <div className="absolute bottom-3 left-3 z-10">

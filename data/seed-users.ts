@@ -1,6 +1,6 @@
 import { User } from "../types/user";
 
-export const seedVolunteers: User[] = [
+const rawVolunteers: User[] = [
   {
     id: "VOL-001",
     name: "Sarah Jenkins",
@@ -203,6 +203,12 @@ export const seedVolunteers: User[] = [
   }
 ];
 
+// Inject mock coordinates for Geo-Context (New Delhi base area)
+export const seedVolunteers: User[] = rawVolunteers.map(vol => ({
+  ...vol,
+  lat: 28.6139 + (Math.random() - 0.5) * 0.2, // ~10-20km radius
+  lng: 77.2090 + (Math.random() - 0.5) * 0.2
+}));
 export const seedAdmin: User = {
   id: "ADM-001",
   name: "Operations Admin",

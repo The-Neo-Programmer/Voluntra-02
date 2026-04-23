@@ -24,6 +24,7 @@ export interface NeedRequest {
   zone: Zone;
   sourceType: string;
   status: RequestStatus;
+  coordinates?: { lat: number; lng: number };
   
   priorityFactors?: PriorityFactors;
   priorityScore: number; 

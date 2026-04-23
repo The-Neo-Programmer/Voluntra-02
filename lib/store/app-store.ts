@@ -121,10 +121,9 @@ export const useAppStore = create<AppState>()(
       updatedInventory = state.inventory.map(item => {
         // Simple logic: if the task resource string mentions the inventory item name, reduce stock by 1 as an MVP proof of concept
         if (targetReq.requestedResources.toLowerCase().includes(item.name.toLowerCase())) {
-           // Try to extract a number before the item name (e.g. "10 Water")
-           const regex = new RegExp(`(\\d+)\\s*${item.name.toLowerCase()}`, 'i');
-           const match = targetReq.requestedResources.match(regex);
-           const deductAmount = match ? parseInt(match[1]) : 1;
+           // Look for numbers anywhere in the resource string (e.g. "10 Water", "Insulin (10 vials)")
+           const numbers = targetReq.requestedResources.match(/\d+/g);
+           const deductAmount = numbers ? parseInt(numbers[0]) : 1;
            return { ...item, stock: Math.max(0, item.stock - deductAmount) };
         }
         return item;

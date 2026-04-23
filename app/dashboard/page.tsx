@@ -8,6 +8,12 @@ import { Inbox, AlertTriangle, Users, CheckSquare, Activity, Map, Package, Trend
 import Link from "next/link";
 import { StatusChip, UrgencyChip } from "@/components/shared/status-chip";
 import { EntityAvatar } from "@/components/shared/entity-avatar";
+import dynamic from 'next/dynamic';
+
+const LiveMap = dynamic(() => import('@/components/map/live-map'), { 
+  ssr: false,
+  loading: () => <div className="w-full h-[400px] bg-neutral-100 animate-pulse rounded-xl flex items-center justify-center text-gray-500">Loading map data...</div>
+});
 
 export default function DashboardPage() {
   const { requests, volunteers, shortages, inventory, activities } = useAppStore();
@@ -93,25 +99,15 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Zone Intelligence — Dynamic */}
+          {/* Geo-Context: Interactive Map */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
               <Map className="w-5 h-5 text-gray-500" />
-              <h3 className="font-semibold text-gray-900">Zone Intelligence</h3>
-              <span className="text-xs text-gray-400 ml-auto">Active requests by zone</span>
+              <h3 className="font-semibold text-gray-900">Live Geo-Context Map</h3>
+              <span className="text-xs text-gray-400 ml-auto">Real-time coordinates</span>
             </div>
-            <div className="p-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              {zoneCounts.length > 0 ? zoneCounts.map((zone, idx) => (
-                <div key={zone.name} className={idx > 0 ? "border-l border-gray-100" : ""}>
-                  <p className={`text-2xl font-bold ${getZoneColor(zone.count)}`}>{zone.count}</p>
-                  <p className="text-xs font-semibold text-gray-500 uppercase mt-1">{zone.name}</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">
-                    {zone.count >= 6 ? "Critical Strain" : zone.count >= 4 ? "High Load" : zone.count >= 2 ? "Moderate" : "Low"}
-                  </p>
-                </div>
-              )) : (
-                <div className="col-span-4 text-center text-gray-400 text-sm py-2">No active zone pressure</div>
-              )}
+            <div className="p-0">
+              <LiveMap />
             </div>
           </div>
 

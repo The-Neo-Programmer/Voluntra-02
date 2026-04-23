@@ -7,15 +7,44 @@ export interface MatchResult {
   matchReasons: string[];
 }
 
+function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  return R * c; // Distance in km
+}
+
 export function matchVolunteersToRequest(request: NeedRequest, volunteers: User[]): MatchResult[] {
   const matches = volunteers.map(vol => {
     let score = 0;
     const reasons: string[] = [];
 
-    // 1. Zone Match (30 points)
-    if (vol.preferredZones?.includes(request.zone)) {
-      score += 30;
-      reasons.push("In preferred zone");
+    // 1. Geo-Context Proximity Match (Replaces text-based zone match)
+    if (request.coordinates && vol.lat && vol.lng) {
+      const distanceKm = getDistanceFromLatLonInKm(
+        request.coordinates.lat, request.coordinates.lng,
+        vol.lat, vol.lng
+      );
+
+      if (distanceKm <= 5) {
+        score += 35;
+        reasons.push(`Very close (${distanceKm.toFixed(1)}km away)`);
+      } else if (distanceKm <= (vol.maxTravelKm || 15)) {
+        score += 20;
+        reasons.push(`Within travel range (${distanceKm.toFixed(1)}km away)`);
+      } else {
+        score -= 20;
+        reasons.push(`Outside preferred travel range (${distanceKm.toFixed(1)}km away)`);
+      }
+    } else if (vol.preferredZones?.includes(request.zone)) {
+      // Fallback to text zone if coordinates missing
+      score += 15;
+      reasons.push("In preferred zone (Fallback)");
     }
 
     // 2. Skill Match (40 points max)
