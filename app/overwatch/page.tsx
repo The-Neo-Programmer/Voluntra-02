@@ -32,23 +32,35 @@ export default function OverwatchPage() {
   // Setup Webcam
   const setupCamera = async () => {
     setCameraError("");
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 640 }, height: { ideal: 480 } }
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err: any) {
-        console.error("Error accessing webcam:", err);
-        if (err.name === 'NotAllowedError' || err.message.toLowerCase().includes('permission denied')) {
-          setCameraError("PERMISSION_DENIED");
-        } else if (err.name === 'NotReadableError' || err.message.includes('Could not start video source')) {
-          setCameraError("Camera is in use by another application (e.g. Zoom, Teams). Please close it and retry.");
-        } else {
-          setCameraError(`Camera error: ${err.message || 'Access denied'}`);
-        }
+
+    if (typeof window !== "undefined" && window.isSecureContext === false) {
+      setCameraError("Camera access requires a secure context (HTTPS or localhost).");
+      return;
+    }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraError("Camera API is not supported in your browser.");
+      return;
+    }
+
+    try {
+      // Using simplest constraint to prevent OverconstrainedError
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err: any) {
+      console.error("Error accessing webcam:", err);
+      if (err.name === 'NotAllowedError' || err.message?.toLowerCase().includes('permission denied')) {
+        setCameraError("PERMISSION_DENIED");
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError' || err.message?.includes('Could not start video source')) {
+        setCameraError("Camera is in use by another application (e.g. Zoom, Teams) or blocked by antivirus.");
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setCameraError("No camera device found. Please connect a webcam.");
+      } else if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+        setCameraError("Camera does not support the requested video settings.");
+      } else {
+        setCameraError(`Camera error: ${err.message || err.name || 'Unknown error'}`);
       }
     }
   };
