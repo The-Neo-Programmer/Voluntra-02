@@ -34,15 +34,16 @@ export default function OverwatchPage() {
     const setupCamera = async () => {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
+          // Changed from facingMode: "environment" to true to fix laptop OverconstrainedError
           const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" }
+            video: true
           });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("Error accessing webcam:", err);
-          setCameraError("Camera access denied or unavailable.");
+          setCameraError(`Camera error: ${err.message || 'Access denied'}`);
         }
       }
     };
