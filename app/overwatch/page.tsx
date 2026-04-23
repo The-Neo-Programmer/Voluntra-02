@@ -42,7 +42,9 @@ export default function OverwatchPage() {
         }
       } catch (err: any) {
         console.error("Error accessing webcam:", err);
-        if (err.name === 'NotReadableError' || err.message.includes('Could not start video source')) {
+        if (err.name === 'NotAllowedError' || err.message.toLowerCase().includes('permission denied')) {
+          setCameraError("PERMISSION_DENIED");
+        } else if (err.name === 'NotReadableError' || err.message.includes('Could not start video source')) {
           setCameraError("Camera is in use by another application (e.g. Zoom, Teams). Please close it and retry.");
         } else {
           setCameraError(`Camera error: ${err.message || 'Access denied'}`);
@@ -172,7 +174,28 @@ export default function OverwatchPage() {
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           />
 
-          {cameraError && (
+          {cameraError === "PERMISSION_DENIED" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-50 p-6 backdrop-blur-sm">
+              <div className="bg-white rounded-xl max-w-sm w-full p-6 text-center shadow-2xl animate-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Camera className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Camera Access Blocked</h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Voluntra Overwatch requires camera access to run the live CV models. 
+                  Please click the <strong className="text-gray-900">lock icon</strong> in your browser's address bar, switch Camera to <strong className="text-green-600">Allow</strong>, and try again.
+                </p>
+                <button 
+                  onClick={setupCamera}
+                  className="w-full py-3 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg shadow-lg transition-colors flex justify-center items-center gap-2"
+                >
+                  <Activity className="w-4 h-4" /> I have allowed access
+                </button>
+              </div>
+            </div>
+          )}
+
+          {cameraError && cameraError !== "PERMISSION_DENIED" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-50">
               <div className="text-red-500 font-bold bg-red-100 px-4 py-3 rounded-lg flex items-center gap-2 max-w-md text-center shadow-lg border border-red-200">
                 <AlertTriangle className="w-6 h-6 shrink-0" />
