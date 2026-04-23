@@ -285,6 +285,6 @@ export const useAppStore = create<AppState>()(
     notifications: state.notifications.map(n => ({ ...n, read: true }))
   }))
 }), {
-  name: 'voluntra-storage',
+  name: 'voluntra-storage-refresh',
   storage: createJSONStorage(() => localStorage),
 }));
