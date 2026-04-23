@@ -30,23 +30,28 @@ export default function OverwatchPage() {
   }, []);
 
   // Setup Webcam
-  useEffect(() => {
-    const setupCamera = async () => {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          // Changed from facingMode: "environment" to true to fix laptop OverconstrainedError
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true
-          });
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (err: any) {
-          console.error("Error accessing webcam:", err);
+  const setupCamera = async () => {
+    setCameraError("");
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err: any) {
+        console.error("Error accessing webcam:", err);
+        if (err.name === 'NotReadableError' || err.message.includes('Could not start video source')) {
+          setCameraError("Camera is in use by another application (e.g. Zoom, Teams). Please close it and retry.");
+        } else {
           setCameraError(`Camera error: ${err.message || 'Access denied'}`);
         }
       }
-    };
+    }
+  };
+
+  useEffect(() => {
     setupCamera();
   }, []);
 
@@ -168,11 +173,17 @@ export default function OverwatchPage() {
           />
 
           {cameraError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-              <div className="text-red-500 font-bold bg-red-100 px-4 py-2 rounded-lg flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                {cameraError}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-50">
+              <div className="text-red-500 font-bold bg-red-100 px-4 py-3 rounded-lg flex items-center gap-2 max-w-md text-center shadow-lg border border-red-200">
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+                <span className="text-sm">{cameraError}</span>
               </div>
+              <button 
+                onClick={setupCamera}
+                className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow-lg transition-colors"
+              >
+                Retry Camera Connection
+              </button>
             </div>
           )}
         </div>
